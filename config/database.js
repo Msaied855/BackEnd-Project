@@ -6,9 +6,12 @@ const dbConection=()=>{
   .then((conn) => {
     console.log(`DataBase Connected :${conn.connection.host}`);
   })
+  /*
   .catch((err) => {
     console.error(`Database Error :${err}`);
     process.exit(1);
   });
+  i will catch it in global in server.js
+  */
 };
 module.exports=dbConection;
