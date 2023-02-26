@@ -1,5 +1,10 @@
 const express = require("express");
-
+const {
+  getCategoryValidator,
+  createCategoryValidator,
+  updateCategoryValidator,
+  deleteCategoryValidator,
+} = require("../utils/Valdators/CategoryValidator");
 const {
   getCategories,
   getCategory,
@@ -9,12 +14,12 @@ const {
 } = require("../controler/CategoryServices");
 
 const router = express.Router();
-router.route("/").get(getCategories).post(CreateCategory);
+router.route("/").get(getCategories).post(createCategoryValidator,CreateCategory);
 router
   .route("/:id")
-  .get(getCategory)
-  .put(UpdateCategory)
-  .delete(DeleteCategory);
+  .get(getCategoryValidator, getCategory)
+  .put(updateCategoryValidator,UpdateCategory)
+  .delete(deleteCategoryValidator,DeleteCategory);
 // this code above is better that the onw below
 /*
 router.get('/',getCategories);
