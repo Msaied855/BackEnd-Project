@@ -33,13 +33,13 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
 // route        Post /api/v1/categories
 // access       Private
 exports.CreateCategory = asyncHandler(async (req, res) => {
-  const name = req.body.name;
+  const {name} = req.body;
   // async await
   const category = await Category.create({ name, slug: slugify(name) });
   res.status(201).json({ data: category });
 });
 //description   Update Category
-//route         Post /api/v1/categories
+//route         Post /api/v1/categories/:id
 //access        Private
 exports.UpdateCategory = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
@@ -55,7 +55,7 @@ exports.UpdateCategory = asyncHandler(async (req, res, next) => {
   res.status(200).json({ data: category });
 });
 //description   Delete spesific category
-//route         Delete /api/v1/categories
+//route         Delete /api/v1/categories/:id
 //access        Private
 exports.DeleteCategory = asyncHandler(async (req, res, next) => {
   const { id } = req.params;

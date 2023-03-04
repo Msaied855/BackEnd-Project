@@ -2,11 +2,13 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
+
 dotenv.config({ path: "confeg.env" }); // we would not do this if the evn file just called .env
 const ApiError = require("./utils/apiError");
 const globalError = require("./Middlewares/errorMiddleware");
 const dbConnection = require("./config/database");
 const categoryRoutes = require("./Routes(Apis)/CategoryRoutes");
+const subCategoryRoutes=require("./Routes(Apis)/subCategoryRoutes");
 //connect db
 dbConnection();
 
@@ -22,6 +24,7 @@ if (process.env.NODE_ENV === "development") {
 
 // Mount Routes
 app.use("/api/v1/categories", categoryRoutes);
+app.use("/api/v1/subcategories",subCategoryRoutes);
 
 app.all("*", (req, res, next) => {
   next(new ApiError(`Can't find this route ${req.originalUrl}`, 400));

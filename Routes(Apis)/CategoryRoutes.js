@@ -14,12 +14,20 @@ const {
 } = require("../controler/CategoryServices");
 
 const router = express.Router();
-router.route("/").get(getCategories).post(createCategoryValidator,CreateCategory);
+
+const subcategoryRoute = require("./subCategoryRoutes");
+
+router.use("/:categoryId/subcategories", subcategoryRoute);
+
+router
+  .route("/")
+  .get(getCategories)
+  .post(createCategoryValidator, CreateCategory);
 router
   .route("/:id")
   .get(getCategoryValidator, getCategory)
-  .put(updateCategoryValidator,UpdateCategory)
-  .delete(deleteCategoryValidator,DeleteCategory);
+  .put(updateCategoryValidator, UpdateCategory)
+  .delete(deleteCategoryValidator, DeleteCategory);
 // this code above is better that the onw below
 /*
 router.get('/',getCategories);
