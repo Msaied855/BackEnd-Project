@@ -58,12 +58,12 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "Brand",
     },
-    ratingAverage: {
+    ratingsAverage: {
       type: Number,
       min: [1, "Rating must be above 0"],
       max: [5, "Rating must be below 5"],
     },
-    ratingQuantity: {
+    ratingsQuantity: {
       type: Number,
       default: 0,
     },

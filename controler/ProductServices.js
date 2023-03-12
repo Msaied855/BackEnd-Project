@@ -6,13 +6,29 @@ const ApiError = require("../utils/apiError");
 // route        Get /api/v1/products
 // access       Public
 exports.getProducts = asyncHandler(async (req, res) => {
+  //1)Filtering
+  const queryStringObj = { ...req.query };
+  const excludeFields = ["page", "sort", "limit", "fields"];
+  excludeFields.forEach((field) => delete queryStringObj[field]);
+
+  let queryStr =JSON.stringify(queryStringObj);
+
+  queryStr=queryStr.replace(/\b(gte|gt|lte|lt)\b/g,(match)=>`$${match}`);
+
+  
+
+  //2)Pagination
   const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
+  const limit = req.query.limit * 1 || 50;
   const skip = (page - 1) * limit;
-  const Products = await Product.find({})
-    .skip(skip)
-    .limit(limit)
-    .populate({ path: "category", select: "name-_id" });
+
+  //Build Query
+  const mongooseQuery=  Product.find(JSON.parse(queryStr))
+  .skip(skip)
+  .limit(limit)
+  .populate({ path: "category", select: "name-_id" });
+  //Execute querywith (await)
+  const Products = await mongooseQuery;
   res.status(200).json({ results: Products.length, page, data: Products });
 });
 // description  Get specific product by id
