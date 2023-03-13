@@ -11,11 +11,9 @@ exports.getProducts = asyncHandler(async (req, res) => {
   const excludeFields = ["page", "sort", "limit", "fields"];
   excludeFields.forEach((field) => delete queryStringObj[field]);
 
-  let queryStr =JSON.stringify(queryStringObj);
+  let queryStr = JSON.stringify(queryStringObj);
 
-  queryStr=queryStr.replace(/\b(gte|gt|lte|lt)\b/g,(match)=>`$${match}`);
-
-  
+  queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
   //2)Pagination
   const page = req.query.page * 1 || 1;
@@ -23,10 +21,22 @@ exports.getProducts = asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit;
 
   //Build Query
-  const mongooseQuery=  Product.find(JSON.parse(queryStr))
-  .skip(skip)
-  .limit(limit)
-  .populate({ path: "category", select: "name-_id" });
+  let mongooseQuery = Product.find(JSON.parse(queryStr))
+    .skip(skip)
+    .limit(limit)
+    .populate({ path: "category", select: "name-_id" });
+
+  //3)Sorting Feature
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(",").join(" ");
+    mongooseQuery = mongooseQuery.sort(sortBy);
+  }
+  //4)Fields Limiting
+  if (req.query.fields) {
+    const fields = req.query.fields.split(",").join(" ");
+    mongooseQuery = mongooseQuery.select(fields);
+  }
+
   //Execute querywith (await)
   const Products = await mongooseQuery;
   res.status(200).json({ results: Products.length, page, data: Products });
