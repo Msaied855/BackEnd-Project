@@ -6,7 +6,7 @@ class ApiFeatures {
 
   filter() {
     const queryStringObj = { ...this.queryString };
-    const excludeFields = ["page", "sort", "limit", "fields"];
+    const excludeFields = ["page", "sort", "limit", "fields", "keyword"];
     excludeFields.forEach((field) => delete queryStringObj[field]);
 
     let queryStr = JSON.stringify(queryStringObj);
@@ -37,13 +37,18 @@ class ApiFeatures {
     return this;
   }
 
-  search() {
+  search(modelName) {
     if (this.queryString.keyword) {
-      const query = {};
-      query.$or = [
-        { title: { $regex: this.queryString.keyword, $options: "i" } },
-        { description: { $regex: this.queryString.keyword, $options: "i" } },
-      ];
+      let query = {};
+      if (modelName === "Products") {
+        query.$or = [
+          { title: { $regex: this.queryString.keyword, $options: "i" } },
+          { description: { $regex: this.queryString.keyword, $options: "i" } },
+        ];
+      } else {
+        query = { name: { $regex: this.queryString.keyword, $options: "i" } };
+      }
+
       this.mongooseQuery = this.mongooseQuery.find(query);
     }
     return this;
@@ -53,28 +58,27 @@ class ApiFeatures {
     const page = this.queryString.page * 1 || 1;
     const limit = this.queryString.limit * 1 || 50;
     const skip = (page - 1) * limit;
-    const endIndex=page*limit;
+    const endIndex = page * limit;
     //pagination results
-    const pagination={};
-    pagination.currentPage=page;
-    pagination.limit=limit;
-    pagination.numberOfPages=Math.ceil(countDocuments/limit);
+    const pagination = {};
+    pagination.currentPage = page;
+    pagination.limit = limit;
+    pagination.numberOfPages = Math.ceil(countDocuments / limit);
 
     //Next page
 
-    if(endIndex<countDocuments){
-      pagination.next=page+1;
+    if (endIndex < countDocuments) {
+      pagination.next = page + 1;
     }
     //prevous page
-    if(skip>0)
-      {
-        pagination.prev=page-1;
-      }
+    if (skip > 0) {
+      pagination.prev = page - 1;
+    }
 
-    this.mongooseQuery=this.mongooseQuery.skip(skip).limit(limit);
-    this.paginationResult =pagination;
+    this.mongooseQuery = this.mongooseQuery.skip(skip).limit(limit);
+    this.paginationResult = pagination;
 
     return this;
   }
 }
-module.exports=ApiFeatures;
+module.exports = ApiFeatures;

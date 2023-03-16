@@ -2,16 +2,28 @@ const slugify = require("slugify");
 const asyncHandler = require("express-async-handler"); // wrap the async await with this insted of using try catch
 const Category = require("../models/CategoryModel");
 const ApiError = require("../utils/apiError");
+const ApiFeatures = require("../utils/apiFeatures");
 
 // description  Get list of categories
 // route        Get /api/v1/categories
 // access       Public
 exports.getCategories = asyncHandler(async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
-  const categories = await Category.find({}).skip(skip).limit(limit);
-  res.status(200).json({ results: categories.length, page, data: categories });
+  const documentCounts = await Category.countDocuments();
+
+  const apiFeatures = new ApiFeatures(Category.find(), req.query)
+    .paginate(documentCounts)
+    .filter()
+    .search()
+    .limitFields()
+    .sort();
+
+  //Execute query with (await)
+  const { mongooseQuery, paginationResult } = apiFeatures;
+  const categories = await mongooseQuery;
+
+  res
+    .status(200)
+    .json({ results: categories.length, paginationResult, data: categories });
 });
 // description  Get specific category by id
 // route        Get /api/v1/categories/:id
@@ -33,7 +45,7 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
 // route        Post /api/v1/categories
 // access       Private
 exports.CreateCategory = asyncHandler(async (req, res) => {
-  const {name} = req.body;
+  const { name } = req.body;
   // async await
   const category = await Category.create({ name, slug: slugify(name) });
   res.status(201).json({ data: category });

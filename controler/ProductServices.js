@@ -9,36 +9,38 @@ const Product = require("../models/ProductModel");
 // route        Get /api/v1/products
 // access       Public
 exports.getProducts = asyncHandler(async (req, res) => {
-  const documentCounts= await Product.countDocuments();
-//Build Query
+  const documentCounts = await Product.countDocuments();
+  //Build Query
   const apiFeatures = new ApiFeatures(Product.find(), req.query)
     .paginate(documentCounts)
     .filter()
-    .search()
+    .search("Products")
     .limitFields()
     .sort();
-    
-    //Execute querywith (await)
-    const{mongooseQuery,paginationResult} =apiFeatures;
-    const products = await mongooseQuery;
-    res.status(200).json({ results: products.length,paginationResult, data: products });
-   });
-  //3)Sorting Feature
-  /*
+
+  //Execute querywith (await)
+  const { mongooseQuery, paginationResult } = apiFeatures;
+  const products = await mongooseQuery;
+  res
+    .status(200)
+    .json({ results: products.length, paginationResult, data: products });
+});
+//3)Sorting Feature
+/*
   if (req.query.sort) {
     const sortBy = req.query.sort.split(",").join(" ");
     mongooseQuery = mongooseQuery.sort(sortBy);
   }
   */
-  //4)Fields Limiting
-  /*
+//4)Fields Limiting
+/*
   if (req.query.fields) {
     const fields = req.query.fields.split(",").join(" ");
     mongooseQuery = mongooseQuery.select(fields);
   }
   */
-  //5)Search Feature
-  /*
+//5)Search Feature
+/*
   if (req.query.keyword) {
     const query = {};
     query.$or = [

@@ -1,17 +1,30 @@
 const slugify = require("slugify");
 const asyncHandler = require("express-async-handler"); // wrap the async await with this insted of using try catch
 const ApiError = require("../utils/apiError");
+const ApiFeatures = require("../utils/apiFeatures");
 
 const Brand = require("../models/BrandModel");
 // description  Get list of Brands
 // route        Get /api/v1/Brands
 // access       Public
 exports.getBrands = asyncHandler(async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
-  const brands = await Brand.find({}).skip(skip).limit(limit);
-  res.status(200).json({ results: brands.length, page, data: brands });
+  //Build Query
+  const documentCounts = await Brand.countDocuments();
+
+  const apiFeatures = new ApiFeatures(Brand.find(), req.query)
+    .paginate(documentCounts)
+    .filter()
+    .search()
+    .limitFields()
+    .sort();
+
+  //Execute querywith (await)
+  const { mongooseQuery, paginationResult } = apiFeatures;
+  const brands = await mongooseQuery;
+
+  res
+    .status(200)
+    .json({ results: brands.length, paginationResult, data: brands });
 });
 // description  Get specific Brand by id
 // route        Get /api/v1/Brands/:id
@@ -32,8 +45,8 @@ exports.getBrand = asyncHandler(async (req, res, next) => {
 // description  Create brand
 // route        Post /api/v1/brands
 // access       Private
-exports.CreateBrand= asyncHandler(async (req, res) => {
-  const {name} = req.body;
+exports.CreateBrand = asyncHandler(async (req, res) => {
+  const { name } = req.body;
   // async await
   const brand = await Brand.create({ name, slug: slugify(name) });
   res.status(201).json({ data: brand });
