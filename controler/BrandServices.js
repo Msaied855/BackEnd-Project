@@ -2,6 +2,7 @@ const slugify = require("slugify");
 const asyncHandler = require("express-async-handler"); // wrap the async await with this insted of using try catch
 const ApiError = require("../utils/apiError");
 const ApiFeatures = require("../utils/apiFeatures");
+const factory = require("./handlersFactory");
 
 const Brand = require("../models/BrandModel");
 // description  Get list of Brands
@@ -54,27 +55,18 @@ exports.CreateBrand = asyncHandler(async (req, res) => {
 //description   Update Brand
 //route         Post /api/v1/brnads/:id
 //access        Private
-exports.UpdateBrand = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const { name } = req.body;
-  const brand = await Brand.findOneAndUpdate(
-    { _id: id },
-    { name: name, slug: slugify(name) },
-    { new: true }
-  );
-  if (!brand) {
-    return next(new ApiError(`No Brand for this id ${id}`, 404));
-  }
-  res.status(200).json({ data: brand });
-});
+exports.UpdateBrand =factory.updateOne(Brand); 
 //description   Delete spesific brand
 //route         Delete /api/v1/brands/:id
 //access        Private
-exports.DeleteBrand = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const brand = await Brand.findByIdAndDelete(id);
-  if (!brand) {
-    return next(new ApiError(`No Brand for this id ${id}`, 404));
-  }
-  res.status(200).send();
-});
+
+exports.DeleteBrand = factory.deleteOne(Brand);
+
+// exports.DeleteBrand = asyncHandler(async (req, res, next) => {
+//   const { id } = req.params;
+//   const brand = await Brand.findByIdAndDelete(id);
+//   if (!brand) {
+//     return next(new ApiError(`No Brand for this id ${id}`, 404));
+//   }
+//   res.status(200).send();
+// });
