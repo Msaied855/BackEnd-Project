@@ -1,30 +1,10 @@
-const slugify = require("slugify");
-const asyncHandler = require("express-async-handler"); // wrap the async await with this insted of using try catch
-const ApiError = require("../utils/apiError");
-const ApiFeatures = require("../utils/apiFeatures");
 const factory=require("./handlersFactory");
 const Product = require("../models/ProductModel");
 
 // description  Get list of products
 // route        Get /api/v1/products
 // access       Public
-exports.getProducts = asyncHandler(async (req, res) => {
-  const documentCounts = await Product.countDocuments();
-  //Build Query
-  const apiFeatures = new ApiFeatures(Product.find(), req.query)
-    .paginate(documentCounts)
-    .filter()
-    .search("Products")
-    .limitFields()
-    .sort();
-
-  //Execute querywith (await)
-  const { mongooseQuery, paginationResult } = apiFeatures;
-  const products = await mongooseQuery;
-  res
-    .status(200)
-    .json({ results: products.length, paginationResult, data: products });
-});
+exports.getProducts = factory.getAll(Product,"Products");
 //3)Sorting Feature
 /*
   if (req.query.sort) {
@@ -53,30 +33,11 @@ exports.getProducts = asyncHandler(async (req, res) => {
 // description  Get specific product by id
 // route        Get /api/v1/products/:id
 // acces        Public
-exports.getProduct = asyncHandler(async (req, res, next) => {
-  //Erroe Handling
-  //1- then() catch(err)
-  //2- try()  catch(err)
-  //3- asyncHandler(async) ==> express error handler who gives us the erorr
-  const { id } = req.params;
-  const product = await Product.findById(id).populate({
-    path: "category",
-    select: "name-_id",
-  });
-  if (!product) {
-    return next(new ApiError(`No Product for this id ${id}`, 404));
-  }
-
-  res.status(200).json({ data: product });
-});
+exports.getProduct = factory.getOne(Product);
 // description  Create product
 // route        Post /api/v1/products
 // access       Private
-exports.CreateProduct = asyncHandler(async (req, res) => {
-  req.body.slug = slugify(req.body.title);
-  const product = await Product.create(req.body);
-  res.status(201).json({ data: product });
-});
+exports.CreateProduct =factory.createOne(Product);
 //description   Update product
 //route         Post /api/v1/products/:id
 //access        Private
