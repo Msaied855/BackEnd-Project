@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require("uuid");
 const Category = require("../models/CategoryModel");
 
 const factory = require("./handlersFactory");
+const ApiError = require("../utils/apiError");
 
 //1-diskStorage engine
 const multerStorage = multer.diskStorage({
@@ -17,8 +18,15 @@ const multerStorage = multer.diskStorage({
     cb(null, filename);
   },
 });
+const multerFilter = function (req, file, cb) {
+  if (file.mimetype.startsWith("imag")) {
+    cb(null, true);
+  } else {
+    cb(new ApiError("only Images Allowed", 400), false);
+  }
+};
 
-const upload = multer({ storage: multerStorage });
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
 
 exports.upLoadCategoryImage = upload.single("image");
 // description  Get list of categories
