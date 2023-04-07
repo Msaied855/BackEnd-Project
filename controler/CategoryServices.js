@@ -7,6 +7,7 @@ const Category = require("../models/CategoryModel");
 
 const factory = require("./handlersFactory");
 const ApiError = require("../utils/apiError");
+const { uploadSingleImage } = require("../Middlewares/uploadImageMidelware");
 
 //1-diskStorage engine
 // const multerStorage = multer.diskStorage({
@@ -20,19 +21,19 @@ const ApiError = require("../utils/apiError");
 //   },
 // });
 //2-memory Storage engine
-const multerStorage = multer.memoryStorage();
+// const multerStorage = multer.memoryStorage();
 
-const multerFilter = function (req, file, cb) {
-  if (file.mimetype.startsWith("image")) {
-    cb(null, true);
-  } else {
-    cb(new ApiError("only Images Allowed", 400), false);
-  }
-};
+// const multerFilter = function (req, file, cb) {
+//   if (file.mimetype.startsWith("image")) {
+//     cb(null, true);
+//   } else {
+//     cb(new ApiError("only Images Allowed", 400), false);
+//   }
+// };
 
-const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+// const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
 
-exports.upLoadCategoryImage = upload.single("image");
+exports.upLoadCategoryImage = uploadSingleImage("image");
 
 exports.resizeImage = asyncHandler(async (req, res, next) => {
   const filename = `categcomstory${uuidv4()}-${Date.now()}.jpeg`;
