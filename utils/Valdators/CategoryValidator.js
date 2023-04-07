@@ -22,7 +22,7 @@ exports.createCategoryValidator = [
 ];
 exports.updateCategoryValidator = [
   check("id").isMongoId().withMessage("Invalid Category Id format"),
-  body("title")
+  body("name")
     .optional()
     .custom((val, { req }) => {
       req.body.slug = slugify(val);

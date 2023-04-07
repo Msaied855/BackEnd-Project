@@ -33,7 +33,12 @@ router
 router
   .route("/:id")
   .get(getCategoryValidator, getCategory)
-  .put(updateCategoryValidator, UpdateCategory)
+  .put(
+    upLoadCategoryImage,
+    resizeImage,
+    updateCategoryValidator,
+    UpdateCategory
+  )
   .delete(deleteCategoryValidator, DeleteCategory);
 // this code above is better that the onw below
 /*
