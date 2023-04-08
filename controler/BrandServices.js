@@ -1,5 +1,9 @@
-const factory = require("./handlersFactory");
+const { v4: uuidv4 } = require("uuid");
+const asyncHandler = require("express-async-handler"); 
+const sharp = require("sharp");
+const { upLoadSIngleImage } = require("../Middlewares/uploadImageMidleware");
 
+const factory = require("./handlersFactory");
 const Brand = require("../models/BrandModel");
 // description  Get list of Brands
 // route        Get /api/v1/Brands
@@ -11,6 +15,20 @@ exports.getBrands = factory.getAll(Brand);
 //2- try()  catch(err)
 //3- asyncHandler(async) ==> express error handler who gives us the erorr
 
+exports.upLoadBrandImage =upLoadSIngleImage("image");
+
+exports.resizeImage = asyncHandler(async (req, res, next) => {
+  const filename = `Brand-${uuidv4()}-${Date.now()}.jpeg`;
+  await sharp(req.file.buffer)
+    .resize(600, 600)
+    .toFormat("jpeg")
+    .jpeg({ quality: 90 })
+    .toFile(`uploads/brands/${filename}`);
+  // save image in database
+    req.body.image=filename;
+
+  next();
+});
 
 
 // description  Get specific Brand by id
