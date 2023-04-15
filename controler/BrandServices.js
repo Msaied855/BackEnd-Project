@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require("uuid");
-const asyncHandler = require("express-async-handler"); 
-const sharp = require("sharp");
+//const asyncHandler = require("express-async-handler"); 
+//const sharp = require("sharp");
 const { upLoadSIngleImage } = require("../Middlewares/uploadImageMidleware");
 
 const factory = require("./handlersFactory");
@@ -17,18 +17,14 @@ exports.getBrands = factory.getAll(Brand);
 
 exports.upLoadBrandImage =upLoadSIngleImage("image");
 
-exports.resizeImage = asyncHandler(async (req, res, next) => {
+exports.resizeImage = (req, res, next) => {
   const filename = `Brand-${uuidv4()}-${Date.now()}.jpeg`;
-  await sharp(req.file.buffer)
-    .resize(600, 600)
-    .toFormat("jpeg")
-    .jpeg({ quality: 90 })
-    .toFile(`uploads/brands/${filename}`);
+
   // save image in database
     req.body.image=filename;
 
   next();
-});
+};
 
 
 // description  Get specific Brand by id

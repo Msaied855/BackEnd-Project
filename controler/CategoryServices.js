@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
-const sharp = require("sharp");
+//const sharp = require("sharp");
 const { v4: uuidv4 } = require("uuid");
-const asyncHandler = require("express-async-handler"); // wrap the async await with this insted of using try catch
+//const asyncHandler = require("express-async-handler"); // wrap the async await with this insted of using try catch
 const Category = require("../models/CategoryModel");
 
 const factory = require("./handlersFactory");
@@ -23,18 +23,13 @@ const { upLoadSIngleImage } = require("../Middlewares/uploadImageMidleware");
 
 exports.upLoadCategoryImage =upLoadSIngleImage("image");
 
-exports.resizeImage = asyncHandler(async (req, res, next) => {
+exports.resizeImage =(req, res, next) => {
   const filename = `category${uuidv4()}-${Date.now()}.jpeg`;
-  await sharp(req.file.buffer)
-    .resize(600, 600)
-    .toFormat("jpeg")
-    .jpeg({ quality: 90 })
-    .toFile(`uploads/categories/${filename}`);
   // save image in database
     req.body.image=filename;
 
   next();
-});
+};
 // description  Get list of categories
 // route        Get /api/v1/categories
 // access       Public
